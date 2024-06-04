@@ -1,100 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Popup</title>
+    <title>Custom Popup Message</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        #popup {
+        /* Basic styling for the popup */
+        .popup {
             display: none;
             position: fixed;
-            left: 0;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .popup-overlay {
+            display: none;
+            position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
         }
-
-        .popup-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        button {
+        .popup button {
             margin: 5px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #proceedButton {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        #cancelButton {
-            background-color: #f44336;
-            color: white;
         }
     </style>
 </head>
 <body>
-    <button id="openPopup">Open Popup</button>
+    <button onclick="showPopup()">Show Popup</button>
 
+    <div id="popup-overlay" class="popup-overlay"></div>
     <div id="popup" class="popup">
-        <div class="popup-content">
-            <p>Do you want to proceed?</p>
-            <button id="proceedButton">Proceed</button>
-            <button id="cancelButton">Cancel</button>
-        </div>
+        <p>Are you sure you want to proceed?</p>
+        <button onclick="cancel()">Cancel</button>
+        <button onclick="proceed()">Proceed</button>
     </div>
 
-    <script>
-        // Function to open the popup
-        document.getElementById('openPopup').addEventListener('click', function() {
-            document.getElementById('popup').style.display = 'flex';
-        });
-
-        // Functionality for the "Proceed" button
-        document.getElementById('proceedButton').addEventListener('click', function() {
-            // Call the proceed functionality
-            proceedFunctionality();
-            // Close the popup
-            document.getElementById('popup').style.display = 'none';
-        });
-
-        // Functionality for the "Cancel" button
-        document.getElementById('cancelButton').addEventListener('click', function() {
-            // Call the cancel functionality
-            cancelFunctionality();
-            // Close the popup
-            document.getElementById('popup').style.display = 'none';
-        });
-
-        // Define the proceed functionality
-        function proceedFunctionality() {
-            // Perform the desired action
-            console.log('Proceeding with the action...');
-            // Example: Redirect to another page
-            window.location.href = 'https://www.example.com/proceed';
+    <script type="text/javascript">
+        function showPopup() {
+            document.getElementById('popup-overlay').style.display = 'block';
+            document.getElementById('popup').style.display = 'block';
         }
 
-        // Define the cancel functionality
-        function cancelFunctionality() {
-            // Perform the desired action
-            console.log('Action has been cancelled.');
-            // Example: Reset a form or show a message
-            alert('You have cancelled the action.');
+        function hidePopup() {
+            document.getElementById('popup-overlay').style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        function cancel() {
+            hidePopup();
+            alert('Action Cancelled');
+        }
+
+        function proceed() {
+            hidePopup();
+            alert('Proceeding...');
         }
     </script>
 </body>
-</html
+</html>
