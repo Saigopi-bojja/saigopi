@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Custom Popup Message</title>
-    <style>
-        /* Basic styling for the popup */
+    <title>Custom Dialog Box</title>
+    <style type="text/css">
+        body {
+            font-family: Arial, sans-serif;
+        }
+
         .popup {
             display: none;
             position: fixed;
@@ -15,6 +18,7 @@
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             z-index: 1000;
+            width: 300px;
         }
         .popup-overlay {
             display: none;
@@ -29,14 +33,17 @@
         .popup button {
             margin: 5px;
         }
+        .popup .message {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-    <button onclick="showPopup()">Show Popup</button>
+    <button onclick="showPopup()">Show Dialog</button>
 
     <div id="popup-overlay" class="popup-overlay"></div>
     <div id="popup" class="popup">
-        <p>Are you sure you want to proceed?</p>
+        <div class="message">This session has been terminated.</div>
         <button onclick="cancel()">Cancel</button>
         <button onclick="proceed()">Proceed</button>
     </div>
