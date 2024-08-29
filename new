@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Template</title>
-    <style>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Email Template</title>
+          <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -47,46 +47,16 @@
             color: #555555;
         }
     </style>
-</head>
-<body>
-    <div class="email-container">
-        <div class="email-header">
-            <p><strong>From:</strong> [Sender Name] &lt;[sender@example.com]&gt;</p>
-            <p><strong>To:</strong> [Recipient Name] &lt;[recipient@example.com]&gt;</p>
-            <p><strong>Subject:</strong> [Email Subject]</p>
-            <p class="email-date"><strong>Date:</strong> [Current Date and Time]</p>
-        </div>
-        <div class="email-body">
-            <p>Dear [Recipient Name],</p>
-            <p>Your email content goes here. This is a placeholder text for your email message.</p>
-            <p>Best regards,</p>
-        
-        <div class="email-signature">
-            [Your Name] <br>
-            [Your Position] <br>
-            [Your Company] <br>
-            [Your Contact Information]
-        </div>
-    </div>
-</body>
-</html>
-
-<!DOCTYPE html> 
-<html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Email Template</title>
-      <style> .email-header { width: 100%; padding: 10px; box-sizing: border-box; position: relative; } .email-date { position: absolute; right: 10px; top: 10px; font-size: 14px; color: #555555; } </style>
    </head>
    <body>
       <div class="email-container">
       <div class="email-header">
+         <p class="email-date"><strong>Date:</strong> [DD:MM:YYYY HH:MM:SS]</p>
          <p><strong>From:</strong> [Sender Name] &lt;[sender@example.com]&gt;</p>
          <p><strong>To:</strong> [Recipient Name] &lt;[recipient@example.com]&gt;</p>
          <p class="cc"><strong>CC:</strong> recipient1@example.com, recipient2@example.com</p>
          <p><strong>Subject:</strong> [Email Subject]</p>
-         <p class="email-date"><strong>Date:</strong> [Current Date and Time]</p>
+         
       </div>
       <div class="email-body">
          <p>Dear [Recipient Name],</p>
