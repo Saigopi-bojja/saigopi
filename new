@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .email-header {
+            margin-bottom: 20px;
+            overflow: auto;
+        }
+        .email-header p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555555;
+        }
+        .email-date {
+            float: right;
+            font-size: 14px;
+            color: #555555;
+        }
+        .email-body {
+            font-size: 16px;
+            color: #333333;
+            line-height: 1.6;
+        }
+        .email-attachment {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333333;
+        }
+        .email-signature {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #555555;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <p><strong>From:</strong> [Sender Name] &lt;[sender@example.com]&gt;</p>
+            <p><strong>To:</strong> [Recipient Name] &lt;[recipient@example.com]&gt;</p>
+            <p><strong>Subject:</strong> [Email Subject]</p>
+            <p class="email-date"><strong>Date:</strong> [Current Date and Time]</p>
+        </div>
+        <div class="email-body">
+            <p>Dear [Recipient Name],</p>
+            <p>Your email content goes here. This is a placeholder text for your email message.</p>
+            <p>Best regards,</p>
+        
+        <div class="email-signature">
+            [Your Name] <br>
+            [Your Position] <br>
+            [Your Company] <br>
+            [Your Contact Information]
+        </div>
+    </div>
+</body>
+</html>
