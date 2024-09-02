@@ -1,68 +1,8 @@
-<!DOCTYPE html> 
-<html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Email Template</title>
-          <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .email-container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .email-header {
-            margin-bottom: 20px;
-            overflow: auto;
-        }
-        .email-header p {
-            margin: 5px 0;
-            font-size: 14px;
-            color: #555555;
-        }
-        .email-date {
-            float: right;
-            font-size: 14px;
-            color: #555555;
-        }
-        .email-body {
-            font-size: 16px;
-            color: #333333;
-            line-height: 1.6;
-        }
-        .email-attachment {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #333333;
-        }
-        .email-signature {
-            margin-top: 40px;
-            font-size: 14px;
-            color: #555555;
-        }
-    </style>
-   </head>
-   <body>
-      <div class="email-container">
-      <div class="email-header">
-         <p class="email-date"><strong>Date:</strong> [DD:MM:YYYY HH:MM:SS]</p>
-         <p><strong>From:</strong> [Sender Name] &lt;[sender@example.com]&gt;</p>
-         <p><strong>To:</strong> [Recipient Name] &lt;[recipient@example.com]&gt;</p>
-         <p class="cc"><strong>CC:</strong> recipient1@example.com, recipient2@example.com</p>
-         <p><strong>Subject:</strong> [Email Subject]</p>
-         
-      </div>
-      <div class="email-body">
-         <p>Dear [Recipient Name],</p>
-         <p>Your email content goes here. This is a placeholder text for your email message.</p>
-         <p>Best regards,</p>
-         <div class="email-signature"> [Your Name] <br> [Your Position] <br> [Your Company] <br> [Your Contact Information] </div>
-      </div>
-   </body>
-</html>
+---------- Calling SI Service at 11:09:34 ----------
+Search GSTIN URL = https://eissiuat.sbi.co.in/gen5/gateway/fetchGST/details
+Search GSTIN Request before Encryption = {"SOURCE_ID":"","GSTIN":"27GSPMH0251G1ZV"}
+Search GSTIN DIGI SIGN Data = HGStudLFnXWHgu9bAaZWdBL3aUUdCnQpMcHmN50F3SWRMLz7sLzLUwiNN5IzyDYOFuXa+egxU+yR7pZjiwn4rI5qO9ysKh4cVAv4HWfUe9t4JvyHKr9fAhLnDaK0WEYLbQBj1iG/9swXRuJdXnmcn7KgUZ7gxm3QNhwNET7Vm/Rfk1ewpiOLZjaLkpftcH2wHLgXa2QJ4cCNFtvwaUSn13GR8daKbBMXz11E7OpeZApvGxzeNuW8ju/WVFONvxfVIcEJPN4yD1SPab/srWV+eDGCwJhheVYGLhNiAieK+Bcc8q9wVWyNOnUp9DFqMzPjhojpfoGJhyYqOBoPVrtoDg== 
+Search GSTIN Encrypted Payload = nizPMVZfmyWihbk2HdwZYYUwU8+h7I9ALO/hUj6+LVmYwyEV+nu77npbM4B/cX44
+Search GSTIN RSA Key = bLFFJCKtba5re4UVimCSF394n5eFcceWRS7yOdjK2NxBoOwvzsnKlsQ313+9GGQ3TlkcZxImIV3cwwHNCKHz001EZbrqBDMnAkFpAyspY18sQLGAAqoihVTfX7NVFRKPVsDwF9cMljaJZ4zp7gabRhFQU8ApOyD4XQkHPmYM89f4loEl6MlW6OB0Oa1Ii6o0K4JiaQJYQqJXmTx20SCkG5SZnvf7tzfdQqjHbHMpfHJ7LSHjbIINja9jnXu/zs4rj3Fji2wlaJcAVHmVbgUJlw1YmWsVOHdZ6OT5nU0LeBaZXKn2ZOGZyNAK1/MXWcSG6IsipqH7Jy90r3deNn5Lvg==
+Search GSTIN PayLoad Request To EIS = {"REQUEST_REFERENCE_NUMBER"  : "SBICB24246110934800000306","REQUEST" : "nizPMVZfmyWihbk2HdwZYYUwU8+h7I9ALO/hUj6+LVmYwyEV+nu77npbM4B/cX44","DIGI_SIGN":"HGStudLFnXWHgu9bAaZWdBL3aUUdCnQpMcHmN50F3SWRMLz7sLzLUwiNN5IzyDYOFuXa+egxU+yR7pZjiwn4rI5qO9ysKh4cVAv4HWfUe9t4JvyHKr9fAhLnDaK0WEYLbQBj1iG/9swXRuJdXnmcn7KgUZ7gxm3QNhwNET7Vm/Rfk1ewpiOLZjaLkpftcH2wHLgXa2QJ4cCNFtvwaUSn13GR8daKbBMXz11E7OpeZApvGxzeNuW8ju/WVFONvxfVIcEJPN4yD1SPab/srWV+eDGCwJhheVYGLhNiAieK+Bcc8q9wVWyNOnUp9DFqMzPjhojpfoGJhyYqOBoPVrtoDg=="}
+Final Catch Exception = The request was aborted: Could not create SSL/TLS secure channel.
