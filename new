@@ -1,8 +1,215 @@
----------- Calling SI Service at 11:09:34 ----------
-Search GSTIN URL = https://eissiuat.sbi.co.in/gen5/gateway/fetchGST/details
-Search GSTIN Request before Encryption = {"SOURCE_ID":"","GSTIN":"27GSPMH0251G1ZV"}
-Search GSTIN DIGI SIGN Data = HGStudLFnXWHgu9bAaZWdBL3aUUdCnQpMcHmN50F3SWRMLz7sLzLUwiNN5IzyDYOFuXa+egxU+yR7pZjiwn4rI5qO9ysKh4cVAv4HWfUe9t4JvyHKr9fAhLnDaK0WEYLbQBj1iG/9swXRuJdXnmcn7KgUZ7gxm3QNhwNET7Vm/Rfk1ewpiOLZjaLkpftcH2wHLgXa2QJ4cCNFtvwaUSn13GR8daKbBMXz11E7OpeZApvGxzeNuW8ju/WVFONvxfVIcEJPN4yD1SPab/srWV+eDGCwJhheVYGLhNiAieK+Bcc8q9wVWyNOnUp9DFqMzPjhojpfoGJhyYqOBoPVrtoDg== 
-Search GSTIN Encrypted Payload = nizPMVZfmyWihbk2HdwZYYUwU8+h7I9ALO/hUj6+LVmYwyEV+nu77npbM4B/cX44
-Search GSTIN RSA Key = bLFFJCKtba5re4UVimCSF394n5eFcceWRS7yOdjK2NxBoOwvzsnKlsQ313+9GGQ3TlkcZxImIV3cwwHNCKHz001EZbrqBDMnAkFpAyspY18sQLGAAqoihVTfX7NVFRKPVsDwF9cMljaJZ4zp7gabRhFQU8ApOyD4XQkHPmYM89f4loEl6MlW6OB0Oa1Ii6o0K4JiaQJYQqJXmTx20SCkG5SZnvf7tzfdQqjHbHMpfHJ7LSHjbIINja9jnXu/zs4rj3Fji2wlaJcAVHmVbgUJlw1YmWsVOHdZ6OT5nU0LeBaZXKn2ZOGZyNAK1/MXWcSG6IsipqH7Jy90r3deNn5Lvg==
-Search GSTIN PayLoad Request To EIS = {"REQUEST_REFERENCE_NUMBER"  : "SBICB24246110934800000306","REQUEST" : "nizPMVZfmyWihbk2HdwZYYUwU8+h7I9ALO/hUj6+LVmYwyEV+nu77npbM4B/cX44","DIGI_SIGN":"HGStudLFnXWHgu9bAaZWdBL3aUUdCnQpMcHmN50F3SWRMLz7sLzLUwiNN5IzyDYOFuXa+egxU+yR7pZjiwn4rI5qO9ysKh4cVAv4HWfUe9t4JvyHKr9fAhLnDaK0WEYLbQBj1iG/9swXRuJdXnmcn7KgUZ7gxm3QNhwNET7Vm/Rfk1ewpiOLZjaLkpftcH2wHLgXa2QJ4cCNFtvwaUSn13GR8daKbBMXz11E7OpeZApvGxzeNuW8ju/WVFONvxfVIcEJPN4yD1SPab/srWV+eDGCwJhheVYGLhNiAieK+Bcc8q9wVWyNOnUp9DFqMzPjhojpfoGJhyYqOBoPVrtoDg=="}
-Final Catch Exception = The request was aborted: Could not create SSL/TLS secure channel.
+Public Function ValidateTINNumber(ByVal xmlCurrentInDoc As FlowDistributorTypes.CFNSComponentDocument) As FlowDistributorTypes.CFNSComponentDocument
+    Dim TANZUTRACE As String
+    Dim TANZULogsPath As String
+    Dim BranchTrace As String
+    Dim TELLERNO As String
+    Dim BRANCHNO As String
+    Dim TANZUResponseDataPlain As Object
+    Dim RESPONSE_STATUS As String
+    Dim xmlReturnDoc As FlowDistributorTypes.CFNSComponentDocument = xmlCurrentInDoc.createReturnDocument
+    Dim sTXSection As String = xmlCurrentInDoc.getMethodParameterText("TXSection", True)
+    Dim TranNo As String = Sanitizer.GetSafeHtmlFragment(xmlCurrentInDoc.body.SelectSingleNode("//screenData/TranNo").InnerText)
+    'DEV COMMENT: TIN IDENTIFIER IS USED FOR THE MAPPING TO THE PARENT SCREEN DATA.
+    Dim tinIdentifier As String = Sanitizer.GetSafeHtmlFragment(xmlCurrentInDoc.body.SelectSingleNode("//screenData/TIN_IDENTIFIER").InnerText)
+    'DEV COMMENT: TIN IDENTIFIER IS USED FOR THE MAPPING TO THE PARENT SCREEN DATA.
+    Dim RRN As String
+    Dim encoded As New System.Text.UTF8Encoding()
+    Dim xmlTXSectionNode As Xml.XmlNode = xmlReturnDoc.appendBodySubDocument(sTXSection, True)
+    Dim ser As New JavaScriptSerializer()
+    Try
+
+        Dim GEN6_XML As New System.Xml.XmlDocument()
+        Dim aes As New TCSSIEncryptor.SIEncryptor.TCSSIEncryptor()
+        Dim goodSettings As New XmlReaderSettings
+        goodSettings.DtdProcessing = DtdProcessing.Ignore
+        goodSettings.XmlResolver = Nothing
+        goodSettings.ValidationType = ValidationType.Schema
+        goodSettings.Schemas = New XmlSchemaSet()
+        goodSettings.MaxCharactersFromEntities = 1024
+        goodSettings.IgnoreComments = True
+
+        Dim goodxmlread As XmlReader = XmlReader.Create(System.AppDomain.CurrentDomain.BaseDirectory & "\xml\Settings\TIN_Config.xml", goodSettings)
+        GEN6_XML.Load(goodxmlread)
+        goodxmlread.Close()
+
+        TELLERNO = xmlCurrentInDoc.OwnerDocument.SelectSingleNode("//userInfo/TellerNo").InnerXml.ToString
+        BRANCHNO = xmlCurrentInDoc.OwnerDocument.SelectSingleNode("//userInfo/BranchNo").InnerXml.ToString
+        'DEV Comment: 3 Parameters will be sent to microservices i.e a.Customer Type b.Country Code c.TIN Number
+        Dim TIN_NO, CUSTOMER_TYPE, COUNTRY_CODE As String
+        TIN_NO = Sanitizer.GetSafeHtmlFragment(xmlCurrentInDoc.body.SelectSingleNode("//screenData/TIN_NO").InnerText)
+        CUSTOMER_TYPE = Sanitizer.GetSafeHtmlFragment(xmlCurrentInDoc.body.SelectSingleNode("//screenData/CUSTOMER_TYPE").InnerText)
+        COUNTRY_CODE = Sanitizer.GetSafeHtmlFragment(xmlCurrentInDoc.body.SelectSingleNode("//screenData/COUNTRY_CODE").InnerText)
+        Dim SOURCE_ID_TANZU As String = GEN6_XML.SelectSingleNode("//SOURCE_ID").InnerText
+        Dim REQUEST_REFERENCE_NUMBER_VAL As String = aes.GenerateRefrenceNumberYY(TELLERNO, "SBI", SOURCE_ID_TANZU)
+        RRN = REQUEST_REFERENCE_NUMBER_VAL
+        Dim TANZUPATH As String = GEN6_XML.SelectSingleNode("//URL").InnerText
+        Dim KEYWORDVAL_TANZU As String = GEN6_XML.SelectSingleNode("//KEYWORDVAL").InnerText
+        TANZUTRACE = GEN6_XML.SelectSingleNode("//TRACE").InnerText
+        BranchTrace = GEN6_XML.SelectSingleNode("//BRANCH_TRACE").InnerText
+        BranchTrace = BranchTrace.PadLeft(5, "0"c)
+        TANZULogsPath = System.AppDomain.CurrentDomain.BaseDirectory & "//xml//logs/TIN_LOGS"
+        LogWriterForTIN("----------Calling TANZU TIN VALIDATION SERVICE at " + DateTime.Now.ToString("hh:mm:ss") + " ----------", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+
+
+        Dim restUrlresponce As New Uri(TANZUPATH)
+        Dim request As HttpWebRequest = DirectCast(HttpWebRequest.Create(restUrlresponce), HttpWebRequest)
+        Dim mem As New MemoryStream
+        Dim myheaders As WebHeaderCollection
+
+        LogWriterForTIN("TANZU TIN VALIDATION SERVICE URL = " + TANZUPATH + " ", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+
+
+        Dim TanzuPlainPayLoadReqObject As New PLAINTINREQUEST With {
+            .REQUEST_REFERENCE_NUMBER = REQUEST_REFERENCE_NUMBER_VAL,
+            .SOURCE_ID = SOURCE_ID_TANZU,
+            .CUSTOMER_TYPE = CUSTOMER_TYPE,
+            .COUNTRY_CODE = COUNTRY_CODE,
+            .TIN_NUMBER = TIN_NO
+        }
+        Dim TANZUdata As String = ser.Serialize(TanzuPlainPayLoadReqObject)
+
+        LogWriterForTIN("Plain Json Request = " + TANZUdata + " ", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+
+
+        Dim TANZUPayloadData As ArrayList = aes.GenerateEncryptedKeysForOAEPForMicroservices(TANZUdata, "PayloadCertificateMicroservices")
+
+        Dim TANZUDataRet As Byte() = encoded.GetBytes(TANZUPayloadData(0))
+        Dim RSAkey As String = TANZUPayloadData(1)
+        Dim AccesToken1 As Byte() = encoded.GetBytes(TANZUPayloadData(2))
+
+
+        LogWriterForTIN("Payload Request Data = " + TANZUPayloadData(0), TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+        LogWriterForTIN("Access Token before encryption = " + TANZUPayloadData(2), TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+        LogWriterForTIN("Access Token after encryption= " + RSAkey, TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+
+
+        Dim SignDatastr As String = aes.SignDataEKYC(TANZUdata, KEYWORDVAL_TANZU, "CBSPrivateKey")
+
+        LogWriterForTIN("DIGI SIGN Data = " + SignDatastr + " ", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+
+
+        request.Method = "POST"
+        myheaders = request.Headers
+        myheaders.Add("AccessToken", RSAkey)
+        myheaders.Add("Teller-No", TELLERNO.PadLeft(16, "0"))
+        myheaders.Add("Branch-No", BRANCHNO.PadLeft(5, "0"))
+        request.ContentType = "application/json"
+
+        Dim tANZUEnqpayLoadReqObject As New ENCRYPT_REQUEST With {
+            .DIGI_SIGN = SignDatastr,
+            .REQUEST_REFERENCE_NUMBER = REQUEST_REFERENCE_NUMBER_VAL,
+            .REQUEST = TANZUPayloadData(0)
+        }
+        Dim TANZUEnqpayLoadReq As String = ser.Serialize(tANZUEnqpayLoadReqObject)
+
+        LogWriterForTIN("TANZU PayLoad Request = " + TANZUEnqpayLoadReq + " ", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+
+
+        Dim bytes As Byte() = encoded.GetBytes(TANZUEnqpayLoadReq)
+        request.ContentLength = bytes.Length
+        ServicePointManager.SecurityProtocol = DirectCast(3072, SecurityProtocolType) Or DirectCast(768, SecurityProtocolType) Or DirectCast(192, SecurityProtocolType)
+
+        Using requestStream As Stream = request.GetRequestStream()
+            requestStream.Write(bytes, 0, bytes.Length)
+        End Using
+
+        Try
+            Dim TIN_respond As WebResponse = request.GetResponse()
+            Dim TIN_respondstream As Stream = TIN_respond.GetResponseStream
+            Dim TIN_respondstreamreader As New StreamReader(TIN_respondstream)
+
+            Dim TIN_OUTPUT As String = CheckForDenialOfService(TIN_respondstreamreader).ToString().Trim()
+            LogWriterForTIN("TANZU TIN VALIDATION SERVICE Response Output = " + TIN_OUTPUT + " ", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+            Dim TANZUResponseData As Object = ser.Deserialize(TIN_OUTPUT, GetType(ResponseforTANZU_DIGISIGN))
+
+            LogWriterForTIN("TANZUResponseData = " + TANZUResponseData.RESPONSE.ToString() + " ", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+
+            Dim RetResponse As Object
+            Dim RetDIGI_SIGN As Object
+            Dim RetREQUEST_REFERENCE_NUMBER As Object
+
+            RetResponse = TANZUResponseData.RESPONSE
+            RetDIGI_SIGN = TANZUResponseData.DIGI_SIGN
+            RetREQUEST_REFERENCE_NUMBER = TANZUResponseData.REQUEST_REFERENCE_NUMBER
+
+            Dim DecryptResponseVal As String = aes.AesDecryptWithGCM(RetResponse, TANZUPayloadData(2))
+
+            LogWriterForTIN("Decrypted Response Value= " + DecryptResponseVal + " ", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+
+            Dim base64EncodedBytes As Byte() = System.Convert.FromBase64String(RetDIGI_SIGN)
+            Dim SignDataVerify As Boolean = aes.VerifySignDatEKYC(DecryptResponseVal, base64EncodedBytes, "PayloadCertificateMicroservices")
+            LogWriterForTIN("Digital Signed Data Verified = " + SignDataVerify.ToString() + " ", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+
+            TANZUResponseDataPlain = ser.Deserialize(DecryptResponseVal, GetType(TANZU_RESPONSEMAIN))
+            RESPONSE_STATUS = TANZUResponseDataPlain.RESPONSE_STATUS
+            Dim ErrorDescription As String = TANZUResponseDataPlain.ERROR_CODE + ": " + TANZUResponseDataPlain.ERROR_DESCRIPTION
+            Dim ErrorCode As String = TANZUResponseDataPlain.ERROR_CODE
+            Dim SuccessMessage As String = TANZUResponseDataPlain.ERROR_DESCRIPTION
+
+            If (RESPONSE_STATUS).Trim = "0" And (SignDataVerify.ToString().ToUpper).Trim = "TRUE" Then
+
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "ERROR_CODE", ErrorCode)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "ErrorMessage", ErrorDescription)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_RESPONSE_" + tinIdentifier, "S")
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "ERROR_CODE", ErrorCode)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "ErrorMessage", ErrorDescription)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_ErrorMessage_" + tinIdentifier, ErrorDescription)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_ErrorCode_" + tinIdentifier, ErrorCode)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "RESPONSE_STATUS_" + tinIdentifier, RESPONSE_STATUS)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "RESPONSE_STATUS", RESPONSE_STATUS)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TranNo", TranNo)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "SuccessMessage", SuccessMessage)
+                LogWriterForTIN("Error Description = " + ErrorDescription, TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+                xmlReturnDoc.methodResult = "True"
+
+            ElseIf (RESPONSE_STATUS).Trim = "1" Then
+
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_RESPONSE_" + tinIdentifier, "F")
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "ERROR_CODE", ErrorCode)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "ErrorMessage", ErrorDescription)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_ErrorMessage_" + tinIdentifier, ErrorDescription)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_ErrorCode_" + tinIdentifier, ErrorCode)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TranNo", TranNo)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "RESPONSE_STATUS_" + tinIdentifier, RESPONSE_STATUS)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "RESPONSE_STATUS", RESPONSE_STATUS)
+                LogWriterForTIN("Error Description = " + ErrorDescription, TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+                xmlReturnDoc.methodResult = "FALSE"
+
+            ElseIf (SignDataVerify.ToString().ToUpper).Trim = "FALSE" Then
+                ErrorDescription = "Digital Signature Verification Failed."
+                xmlReturnDoc.methodResult = "FALSE"
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_RESPONSE_" + tinIdentifier, "R")
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "ErrorMessage", ErrorDescription)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_ErrorMessage_" + tinIdentifier, ErrorDescription)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TranNo", TranNo)
+                LogWriterForTIN("Error Description = " + ErrorDescription, TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+            Else
+                xmlReturnDoc.methodResult = "ERROR"
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_RESPONSE_" + tinIdentifier, "R")
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "ErrorMessage", ErrorDescription)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_ErrorMessage_" + tinIdentifier, ErrorDescription)
+                xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TranNo", TranNo)
+                LogWriterForTIN("Error Description = " + ErrorDescription, TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+            End If
+
+        Catch Ex As Exception
+            xmlReturnDoc.methodResult = "ERROR"
+            xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_RESPONSE_" + tinIdentifier, "R")
+            xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "ErrorMessage", Ex.Message.ToString())
+            xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_ErrorMessage_" + tinIdentifier, Ex.Message.ToString())
+            xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TranNo", TranNo)
+            LogWriterForTIN("First Catch Block = " + Ex.Message.ToString() + " ", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+        End Try
+
+    Catch ex As Exception
+        xmlReturnDoc.methodResult = "ERROR"
+        xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_RESPONSE_" + tinIdentifier, "R")
+        xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "TIN_ErrorMessage_" + tinIdentifier, ex.Message.ToString())
+        xmlReturnDoc.setBodySubDocumentNodeValue("screenData", "ErrorMessage", ex.Message.ToString())
+        LogWriterForTIN("Main Catch Block = " + ex.Message.ToString(), TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+
+    End Try
+    LogWriterForTIN("---------- End TANZU TIN VALIDATION SERVICE at " + DateTime.Now.ToString("hh:mm:ss") + " ----------", TELLERNO, BRANCHNO, TANZUTRACE, BranchTrace, TANZULogsPath)
+    xmlReturnDoc.appendBodySubDocument(xmlTXSectionNode)
+    Return xmlReturnDoc
+End Function
