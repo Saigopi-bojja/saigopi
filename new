@@ -1,0 +1,41 @@
+import java.io.*;
+import java.nio.file.*;
+
+public class AddLineToPCOFiles {
+
+    public static void main(String[] args) {
+        // Replace with the path of your folder containing .pco files
+        String folderPath = "C:/path/to/your/folder";
+
+        File folder = new File(folderPath);
+        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".pco"));
+
+        if (files == null || files.length == 0) {
+            System.out.println("No .pco files found in the folder.");
+            return;
+        }
+
+        for (File file : files) {
+            try {
+                addLineToTop(file);
+                System.out.println("Modified: " + file.getName());
+            } catch (IOException e) {
+                System.err.println("Error processing file: " + file.getName());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void addLineToTop(File file) throws IOException {
+        // Read original content
+        Path path = file.toPath();
+        byte[] originalBytes = Files.readAllBytes(path);
+        String originalContent = new String(originalBytes);
+
+        // New content with $ilsmartnest on top
+        String modifiedContent = "$ilsmartnest\n" + originalContent;
+
+        // Write back to the file
+        Files.write(path, modifiedContent.getBytes());
+    }
+}
