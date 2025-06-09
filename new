@@ -39,3 +39,46 @@ public class AddLineToPCOFiles {
         Files.write(path, modifiedContent.getBytes());
     }
 }
+
+
+import java.io.*;
+import java.nio.file.*;
+
+public class RemoveLineFromPCOFiles {
+
+    public static void main(String[] args) {
+        String folderPath = "C:/path/to/your/folder"; // Update this to your folder path
+
+        File folder = new File(folderPath);
+        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".pco"));
+
+        if (files == null || files.length == 0) {
+            System.out.println("No .pco files found.");
+            return;
+        }
+
+        for (File file : files) {
+            try {
+                removeLineIfPresent(file);
+                System.out.println("Cleaned: " + file.getName());
+            } catch (IOException e) {
+                System.err.println("Failed to clean: " + file.getName());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void removeLineIfPresent(File file) throws IOException {
+        Path path = file.toPath();
+        // Read all lines
+        java.util.List<String> lines = Files.readAllLines(path);
+
+        // Check if first line is "$ilsmartnest"
+        if (!lines.isEmpty() && lines.get(0).trim().equals("$ilsmartnest")) {
+            // Remove first line
+            lines.remove(0);
+            // Write back remaining lines
+            Files.write(path, lines);
+        }
+    }
+}
